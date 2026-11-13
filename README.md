@@ -26,7 +26,8 @@ Python 3.10 or newer; depends on numpy and scipy.
 
 `examples/data/two_versions.jsonl` holds two small span sets, `first` and `second`, over two
 documents. Each line is `{"document", "annotator", "start", "end", "label"}`; a line with
-`document` and `length` records how many positions a document has.
+`document` and `length` records how many positions a document has, and a line with only
+`annotator` declares an annotator who may have marked nothing.
 
 ```
 $ spanagree diff examples/data/two_versions.jsonl
@@ -245,7 +246,9 @@ used here.
   documents (the quickstart has two) they say little.
 - Column files compared with each other must have the same documents and token counts; tokens are
   not re-aligned.
-- Offsets in JSON lines are taken as given; nothing checks them against a text.
+- Offsets in JSON lines are taken as given; nothing checks them against a text. Converting JSON
+  lines to a column file needs token offsets; without `--tokens-from` the tokens are written as
+  placeholders (`t0`, `t1`, ...) and each document becomes one sentence.
 - Only the IOB1, IOB2 and BILOU families are read; IO and other schemes are not.
 
 ## Related tools
