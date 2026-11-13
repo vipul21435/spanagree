@@ -181,3 +181,27 @@ def test_write_columns_round_trip(tmp_path):
     back, report = load_columns(out, scheme="bilou", annotator="x")
     assert back.sets["x"] == corpus.sets["x"]
     assert back.tokens == corpus.tokens
+
+
+TAGS = {
+    "iob1": ["O", "B-A", "I-A", "B-B", "I-B"],
+    "iob2": ["O", "B-A", "I-A", "B-B", "I-B"],
+    "bilou": ["O", "B-A", "I-A", "L-A", "U-A", "B-B", "I-B", "L-B", "U-B", "E-A", "S-B"],
+}
+
+
+@settings(max_examples=200, deadline=None)
+@given(st.sampled_from(sorted(TAGS)).flatmap(
+    lambda s: st.tuples(st.just(s), st.lists(st.sampled_from(TAGS[s]), max_size=15))))
+def test_any_tag_sequence_decodes_to_flat_spans_that_re_encode_legally(case):
+    scheme, tags = case
+    got, viol = decode(tags, scheme, doc="d")
+    for x, y in zip(got, got[1:], strict=False):
+        assert x.end <= y.start
+    assert all(0 <= s.start < s.end <= len(tags) for s in got)
+    fixed = encode(got, len(tags), scheme)
+    again, viol2 = decode(fixed, scheme, doc="d")
+    assert viol2 == []
+    assert again == got
+    if not viol:
+        assert fixed == [t.replace("E-", "L-").replace("S-", "U-") for t in tags]
