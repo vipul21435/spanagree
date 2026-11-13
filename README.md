@@ -78,7 +78,8 @@ The commands:
 | `spanagree check` | illegal tag transitions in column files (exit status 1 when any are found) |
 
 Every command takes `--format md` (default) or `--format json`. Inputs are JSON lines files
-(`.jsonl`, any number of annotators each) or CoNLL-style column files (one annotator each, named
+(`.jsonl`, any number of annotators each, offsets in characters or, with `--unit token`, in
+tokens) or CoNLL-style column files (one annotator each, named
 after the file or by `--names a,b`). Column files take `--scheme iob1|iob2|bilou` (aliases `bio`,
 `bioes`), `--tag-col` (default: the last column) and `--doc-mode` (split at `-DOCSTART-` lines, or
 one document per sentence). The first annotator is the reference unless `--ref` and `--other` say
