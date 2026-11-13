@@ -52,7 +52,7 @@ def test_load_jsonl_rejects_malformed(tmp_path, line, msg):
 
 
 def test_write_then_read_round_trip(tmp_path):
-    c = Corpus(sets={"x": [Span("d", 0, 2, "A")], "y": [Span("d", 1, 2, "B")]},
+    c = Corpus(sets={"x": [Span("d", 0, 2, "A")], "y": [Span("d", 1, 2, "B")], "z": []},
                lengths={"d": 9})
     p = tmp_path / "out.jsonl"
     write_jsonl(c, p)
@@ -65,3 +65,12 @@ def test_merge_rejects_duplicate_annotator():
     c = Corpus(sets={"x": []})
     with pytest.raises(ValueError):
         c.merge(Corpus(sets={"x": []}))
+
+
+def test_annotator_declaration_line(tmp_path):
+    p = tmp_path / "s.jsonl"
+    p.write_text('{"annotator": "silent"}\n'
+                 '{"document": "a", "annotator": "r1", "start": 0, "end": 1, "label": "X"}\n')
+    c = load_jsonl(p)
+    assert c.annotators == ["silent", "r1"]
+    assert c.sets["silent"] == []

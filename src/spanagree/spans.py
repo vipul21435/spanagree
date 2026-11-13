@@ -109,8 +109,9 @@ def load_jsonl(path: str | Path, annotator: str | None = None, unit: str = "char
     Each line is an object with ``document`` (or ``doc``), ``start``, ``end`` and
     ``label``, and optionally ``annotator``. A line with ``document`` and
     ``length`` but no ``start`` records a document's length, so that documents
-    without spans still count. Lines without ``annotator`` take ``annotator`` (the
-    file stem when not given).
+    without spans still count, and a line with only ``annotator`` declares an
+    annotator who may have marked nothing. Lines without ``annotator`` take
+    ``annotator`` (the file stem when not given).
     """
     path = Path(path)
     default = annotator or path.stem
@@ -127,6 +128,10 @@ def load_jsonl(path: str | Path, annotator: str | None = None, unit: str = "char
             if not isinstance(rec, dict):
                 raise ValueError(f"{path}:{lineno}: expected a JSON object")
             doc = rec.get("document", rec.get("doc"))
+            if doc is None and "annotator" in rec and "start" not in rec:
+                # Declares an annotator, so that one who marked nothing still counts.
+                corpus.sets.setdefault(str(rec["annotator"]), [])
+                continue
             if doc is None:
                 raise ValueError(f"{path}:{lineno}: missing 'document'")
             doc = str(doc)
@@ -160,8 +165,10 @@ def _is_int(x: object) -> bool:
 
 
 def write_jsonl(corpus: Corpus, path: str | Path) -> None:
-    """Write every span of every annotator, then the document lengths."""
+    """Write the annotators and document lengths, then every span of every annotator."""
     with Path(path).open("w", encoding="utf-8") as fh:
+        for name in corpus.sets:
+            fh.write(json.dumps({"annotator": name}) + "\n")
         for doc in corpus.documents():
             fh.write(json.dumps({"document": doc, "length": corpus.length(doc)}) + "\n")
         for name, spans in corpus.sets.items():
