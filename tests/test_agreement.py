@@ -137,3 +137,25 @@ def test_span_past_document_length_is_an_error():
     c = Corpus(sets={"a": [Span("d", 0, 9, "X")], "b": []}, lengths={"d": 5})
     with pytest.raises(ValueError, match="past the document length"):
         pair_agreement(c, "a", "b", n_boot=0)
+
+
+def test_bootstrap_matches_a_naive_resampling_loop():
+    rng = np.random.default_rng(12)
+    c = random_corpus(rng, docs=8)
+    docs = c.documents()
+    res = pair_agreement(c, "a", "b", n_boot=200, seed=4)
+    draws = np.random.default_rng(4).integers(0, len(docs), size=(200, len(docs)))
+    values = []
+    for row in draws:
+        credit = n = 0.0
+        for k in row:
+            d = docs[k]
+            ra = [s for s in c.sets["a"] if s.doc == d]
+            rb = [s for s in c.sets["b"] if s.doc == d]
+            sc = score(ra, rb, "strict").micro
+            credit += sc.credit
+            n += sc.n_ref + sc.n_other
+        values.append(2 * credit / n)
+    lo, hi = np.quantile(values, [0.025, 0.975])
+    assert res.f["strict"].low == pytest.approx(lo, abs=1e-12)
+    assert res.f["strict"].high == pytest.approx(hi, abs=1e-12)
