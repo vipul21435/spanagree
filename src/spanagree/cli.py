@@ -140,6 +140,13 @@ def _est(e) -> str:
     return f"{fmt(e.value)} [{fmt(e.low)}, {fmt(e.high)}]"
 
 
+def _boot_line(args: argparse.Namespace, corpus: Corpus) -> str:
+    if args.boot <= 0:
+        return "No bootstrap intervals (--boot 0)."
+    return (f"In brackets: 95 % bootstrap interval over {len(corpus.documents())} documents, "
+            f"{args.boot} resamples, seed {args.seed}.")
+
+
 def _alpha_unit(corpus: Corpus) -> str:
     """Alpha is over characters when tokens or character offsets are known."""
     if corpus.tokens or corpus.unit == "char":
@@ -158,8 +165,7 @@ def cmd_agreement(args: argparse.Namespace) -> str:
         if args.format == "json":
             return json.dumps({"pair": pa.as_dict(), "bootstrap": args.boot, "seed": args.seed},
                               indent=2)
-        level = f"95 % bootstrap interval over {len(corpus.documents())} documents, " \
-                f"{args.boot} resamples, seed {args.seed}"
+        level = _boot_line(args, corpus)
         rows = [(f"F, {r} (Hripcsak and Rothschild)", _est(e)) for r, e in pa.f.items()]
         rows += [(f"Cohen's kappa, all {pa.positions} positions", _est(pa.kappa_all)),
                  (f"Cohen's kappa, {pa.marked_positions} positions marked by either",
@@ -181,9 +187,7 @@ def cmd_agreement(args: argparse.Namespace) -> str:
                            "least_agreement": [{"document": d, "mean_f": f, "spans": n}
                                                for d, f, n in worst],
                            "bootstrap": args.boot, "seed": args.seed}, indent=2)
-    out = [f"# Agreement among {len(names)} annotators", "",
-           f"95 % bootstrap interval over {len(corpus.documents())} documents, "
-           f"{args.boot} resamples, seed {args.seed}", ""]
+    out = [f"# Agreement among {len(names)} annotators", "", _boot_line(args, corpus), ""]
     out.append(table(["statistic", "value [interval]"], [
         ("Fleiss' kappa, all positions", _est(ga.fleiss_all)),
         ("Fleiss' kappa, positions marked by anyone", _est(ga.fleiss_marked)),

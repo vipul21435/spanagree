@@ -84,7 +84,10 @@ def test_agreement_two_annotators(capsys):
     data = json.loads(capsys.readouterr().out)
     assert data["pair"]["f"]["strict"]["value"] == pytest.approx(2 / 11)
     assert main(["agreement", str(EXAMPLE), "--boot", "0"]) == 0
-    assert "Cohen's kappa" in capsys.readouterr().out
+    out = capsys.readouterr().out
+    assert "Cohen's kappa" in out and "No bootstrap intervals" in out
+    assert main(["agreement", str(EXAMPLE), "--boot", "30"]) == 0
+    assert "30 resamples, seed 0" in capsys.readouterr().out
 
 
 def test_agreement_three_annotators(tmp_path, capsys):
