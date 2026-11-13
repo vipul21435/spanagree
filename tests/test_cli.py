@@ -44,6 +44,7 @@ def test_score_refuses_illegal_tags_without_repair(tmp_path, capsys):
     assert main(["score", str(a), str(b)]) == 2
     assert "illegal iob2 transitions" in capsys.readouterr().err
     assert main(["score", str(a), str(b), "--repair"]) == 0
+    assert "1 illegal iob2 transitions repaired on request" in capsys.readouterr().err
 
 
 def test_check_exit_codes(tmp_path, capsys):

@@ -40,8 +40,12 @@ def _add_pair_args(p: argparse.ArgumentParser) -> None:
 
 def _load(args: argparse.Namespace):
     names = args.names.split(",") if args.names else None
-    corpus, _ = load_inputs(args.inputs, scheme=args.scheme, repair=args.repair,
-                            tag_col=args.tag_col, doc_mode=args.doc_mode, names=names)
+    corpus, reports = load_inputs(args.inputs, scheme=args.scheme, repair=args.repair,
+                                  tag_col=args.tag_col, doc_mode=args.doc_mode, names=names)
+    for path, rep in zip((p for p in args.inputs if not is_jsonl(p)), reports, strict=True):
+        if rep.violations:
+            print(f"spanagree: {path}: {len(rep.violations)} illegal {rep.scheme} transitions "
+                  "repaired on request", file=sys.stderr)
     return corpus
 
 
