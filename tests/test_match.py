@@ -58,12 +58,14 @@ def test_empty_sets_give_none():
 
 
 def test_alignment_is_one_to_one_and_prefers_more_pairs():
-    # Greedy by overlap would pair the long span with b0 and leave b1 alone.
-    ref = [S(0, 10), S(9, 12)]
-    oth = [S(2, 10), S(10, 11)]
+    # Largest-overlap-first would pair 0-10 with 5-10 (overlap 5) and leave
+    # 8-10 and 0-4 unpaired; the optimal pairing keeps both pairs.
+    ref = [S(0, 10), S(8, 10)]
+    oth = [S(5, 10), S(0, 4)]
     al = align(ref, oth, "partial")
     assert len(al.pairs) == 2
     assert not al.unmatched_ref and not al.unmatched_other
+    assert (S(0, 10), S(0, 4)) in al.pairs
 
 
 def test_unknown_regime_rejected():
