@@ -37,6 +37,12 @@ def test_load_jsonl_groups_by_annotator(tmp_path):
     ('{"document": "a", "start": 1, "label": "X"}', "end"),
     ('{"document": "a", "start": "x", "end": 2, "label": "X"}', "integers"),
     ('{"document": "a", "start": 4, "end": 2, "label": "X"}', "reversed"),
+    ('{"document": "a", "start": 1.5, "end": 2, "label": "X"}', "integers"),
+    ('{"document": "a", "start": true, "end": 2, "label": "X"}', "integers"),
+    ('{"document": "a", "start": 1, "end": 2, "label": null}', "label"),
+    ('{"document": "a", "start": 1, "end": 2, "label": ""}', "label"),
+    ('{"document": "a", "length": -3}', "length"),
+    ('{"document": "a", "length": "9"}', "length"),
 ])
 def test_load_jsonl_rejects_malformed(tmp_path, line, msg):
     p = tmp_path / "bad.jsonl"

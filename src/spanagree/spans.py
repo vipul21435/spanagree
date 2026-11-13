@@ -131,14 +131,19 @@ def load_jsonl(path: str | Path, annotator: str | None = None, unit: str = "char
                 raise ValueError(f"{path}:{lineno}: missing 'document'")
             doc = str(doc)
             if "start" not in rec and "length" in rec:
-                corpus.lengths[doc] = max(int(rec["length"]), corpus.lengths.get(doc, 0))
+                length = rec["length"]
+                if not _is_int(length) or length < 0:
+                    raise ValueError(f"{path}:{lineno}: length must be a non-negative integer")
+                corpus.lengths[doc] = max(length, corpus.lengths.get(doc, 0))
                 continue
-            try:
-                start, end, label = int(rec["start"]), int(rec["end"]), str(rec["label"])
-            except KeyError as exc:
-                raise ValueError(f"{path}:{lineno}: missing {exc.args[0]!r}") from None
-            except (TypeError, ValueError):
-                raise ValueError(f"{path}:{lineno}: start and end must be integers") from None
+            for key in ("start", "end", "label"):
+                if key not in rec:
+                    raise ValueError(f"{path}:{lineno}: missing {key!r}")
+            start, end, label = rec["start"], rec["end"], rec["label"]
+            if not (_is_int(start) and _is_int(end)):
+                raise ValueError(f"{path}:{lineno}: start and end must be integers")
+            if not isinstance(label, str) or not label:
+                raise ValueError(f"{path}:{lineno}: label must be a non-empty string")
             try:
                 span = Span(doc, start, end, label)
             except ValueError as exc:
@@ -148,6 +153,10 @@ def load_jsonl(path: str | Path, annotator: str | None = None, unit: str = "char
     for name in corpus.sets:
         corpus.sets[name].sort()
     return corpus
+
+
+def _is_int(x: object) -> bool:
+    return isinstance(x, int) and not isinstance(x, bool)
 
 
 def write_jsonl(corpus: Corpus, path: str | Path) -> None:
