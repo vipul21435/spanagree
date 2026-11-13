@@ -67,6 +67,38 @@ $ spanagree score examples/data/two_versions.jsonl --regime all
 ...
 ```
 
+With three or more annotators, `agreement` adds the pairwise matrix, each annotator against the
+majority of the others and the documents with the least agreement:
+
+```
+$ spanagree agreement examples/data/three_annotators.jsonl --boot 0
+# Agreement among 3 annotators
+
+No bootstrap intervals (--boot 0).
+
+| statistic | value [interval] |
+|---|---|
+| Fleiss' kappa, all positions | 0.6383 |
+| Fleiss' kappa, positions marked by anyone | 0.4055 |
+| Krippendorff's alpha, character labels | 0.6434 |
+
+## Pairwise F (strict)
+
+|  | r1 | r2 | r3 |
+|---|---|---|---|
+| r1 | 1.0000 | 0.5000 | 0.5000 |
+| r2 | 0.5000 | 1.0000 | 0.2500 |
+| r3 | 0.5000 | 0.2500 | 1.0000 |
+...
+## Documents with the least agreement (strict)
+
+| document | mean pairwise F | spans |
+|---|---|---|
+| a3 | 0.0000 | 3 |
+| a2 | 0.3333 | 3 |
+| a1 | 0.6667 | 6 |
+```
+
 The commands:
 
 | command | what it reports |
