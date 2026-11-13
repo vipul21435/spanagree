@@ -45,12 +45,13 @@ class Corpus:
 
     ``lengths`` holds the number of offset positions per document (needed for
     token- or character-level agreement); ``tokens`` holds the token strings when
-    the input was a column file.
+    the input was a column file, and ``breaks`` the sentence start offsets.
     """
 
     sets: dict[str, list[Span]] = field(default_factory=dict)
     lengths: dict[str, int] = field(default_factory=dict)
     tokens: dict[str, list[str]] = field(default_factory=dict)
+    breaks: dict[str, list[int]] = field(default_factory=dict)
     unit: str = "token"
 
     @property
@@ -80,8 +81,10 @@ class Corpus:
             lengths[doc] = max(n, lengths.get(doc, 0))
         tokens = dict(self.tokens)
         tokens.update({d: t for d, t in other.tokens.items() if d not in tokens})
+        breaks = dict(self.breaks)
+        breaks.update({d: b for d, b in other.breaks.items() if d not in breaks})
         unit = self.unit if self.sets else other.unit
-        return Corpus(sets=sets, lengths=lengths, tokens=tokens, unit=unit)
+        return Corpus(sets=sets, lengths=lengths, tokens=tokens, breaks=breaks, unit=unit)
 
 
 def _natural_key(text: str) -> list[object]:
