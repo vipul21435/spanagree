@@ -7,6 +7,7 @@ python scripts/fetch_conll.py "$D"
 A="$D/test.txt"
 B="$D/conllpp_test.txt"
 spanagree check "$A" "$B" --scheme iob2 --examples 0
+python scripts/changed_sentences.py "$A" "$B"
 spanagree score "$A" "$B" --names original,corrected --regime all
 spanagree diff "$A" "$B" --names original,corrected --examples 0
 spanagree agreement "$A" "$B" --names original,corrected --boot 1000 --seed 0
