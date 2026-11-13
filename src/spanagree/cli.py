@@ -30,6 +30,8 @@ def _add_input_args(p: argparse.ArgumentParser) -> None:
     p.add_argument("--doc-mode", default="auto", choices=["auto", "docstart", "sentence"],
                    help="document boundaries in column files")
     p.add_argument("--names", help="comma-separated annotator names, one per input file")
+    p.add_argument("--unit", default="char", choices=["char", "token"],
+                   help="offset unit of JSON lines inputs (default: char)")
     p.add_argument("--format", default="md", choices=["md", "json"])
 
 
@@ -41,7 +43,8 @@ def _add_pair_args(p: argparse.ArgumentParser) -> None:
 def _load(args: argparse.Namespace):
     names = args.names.split(",") if args.names else None
     corpus, reports = load_inputs(args.inputs, scheme=args.scheme, repair=args.repair,
-                                  tag_col=args.tag_col, doc_mode=args.doc_mode, names=names)
+                                  tag_col=args.tag_col, doc_mode=args.doc_mode, names=names,
+                                  unit=args.unit)
     for path, rep in zip((p for p in args.inputs if not is_jsonl(p)), reports, strict=True):
         if rep.violations:
             print(f"spanagree: {path}: {len(rep.violations)} illegal {rep.scheme} transitions "
@@ -137,6 +140,13 @@ def _est(e) -> str:
     return f"{fmt(e.value)} [{fmt(e.low)}, {fmt(e.high)}]"
 
 
+def _alpha_unit(corpus: Corpus) -> str:
+    """Alpha is over characters when tokens or character offsets are known."""
+    if corpus.tokens or corpus.unit == "char":
+        return "character"
+    return "position (token)"
+
+
 def cmd_agreement(args: argparse.Namespace) -> str:
     corpus = _load(args)
     names = corpus.annotators
@@ -154,7 +164,7 @@ def cmd_agreement(args: argparse.Namespace) -> str:
         rows += [(f"Cohen's kappa, all {pa.positions} positions", _est(pa.kappa_all)),
                  (f"Cohen's kappa, {pa.marked_positions} positions marked by either",
                   _est(pa.kappa_marked)),
-                 ("Krippendorff's alpha, character labels", _est(pa.alpha))]
+                 (f"Krippendorff's alpha, {_alpha_unit(corpus)} labels", _est(pa.alpha))]
         return "\n".join([f"# Agreement between {ref} and {other}", "", level, "",
                           table(["statistic", "value [interval]"], rows), "",
                           "Kappa over all positions counts agreement on O (outside) and is "
@@ -177,7 +187,7 @@ def cmd_agreement(args: argparse.Namespace) -> str:
     out.append(table(["statistic", "value [interval]"], [
         ("Fleiss' kappa, all positions", _est(ga.fleiss_all)),
         ("Fleiss' kappa, positions marked by anyone", _est(ga.fleiss_marked)),
-        ("Krippendorff's alpha, character labels", _est(ga.alpha))]))
+        (f"Krippendorff's alpha, {_alpha_unit(corpus)} labels", _est(ga.alpha))]))
     out += ["", f"## Pairwise F ({args.regime})", ""]
     out.append(table(["", *names], [(a, *(matrix[a][b] for b in names)) for a in names]))
     out += ["", f"## Each against the majority of the others ({args.regime})", ""]

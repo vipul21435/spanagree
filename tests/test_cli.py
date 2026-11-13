@@ -132,3 +132,10 @@ def test_convert_round_trip(tmp_path, capsys):
     assert main(["convert", str(bad), "-o", str(js), "--repair"]) == 0
     assert "repaired on request" in capsys.readouterr().out
     assert main(["convert", str(js), "-o", str(back), "--annotator", "zz"]) == 2
+
+
+def test_token_unit_changes_alpha_label(capsys):
+    assert main(["agreement", str(EXAMPLE), "--boot", "0", "--unit", "token"]) == 0
+    assert "alpha, position (token) labels" in capsys.readouterr().out
+    assert main(["agreement", str(EXAMPLE), "--boot", "0"]) == 0
+    assert "alpha, character labels" in capsys.readouterr().out

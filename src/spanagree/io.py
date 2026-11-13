@@ -43,6 +43,8 @@ def load_inputs(paths: Sequence[str | Path], scheme: str = "iob2", repair: bool 
             if corpus.tokens:
                 _check_same_tokens(corpus, part, path)
         corpus = corpus.merge(part)
+    if paths and all(is_jsonl(p) for p in paths):
+        corpus.unit = unit
     return corpus, reports
 
 
