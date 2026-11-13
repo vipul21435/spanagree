@@ -112,8 +112,8 @@ The commands:
 
 Every command takes `--format md` (default) or `--format json`. Inputs are JSON lines files
 (`.jsonl`, any number of annotators each, offsets in characters or, with `--unit token`, in
-tokens) or CoNLL-style column files (one annotator each, named
-after the file or by `--names a,b`). Column files take `--scheme iob1|iob2|bilou` (aliases `bio`,
+tokens) or CoNLL-style column files (one annotator each, named after the file or by
+`--names a,b`). Column files take `--scheme iob1|iob2|bilou` (aliases `bio`,
 `bioes`), `--tag-col` (default: the last column) and `--doc-mode` (split at `-DOCSTART-` lines, or
 one document per sentence). The first annotator is the reference unless `--ref` and `--other` say
 otherwise. `examples/compare_versions.py` shows the Python API.
@@ -169,7 +169,8 @@ offset units, which are tokens for column files.
 - *Krippendorff's alpha.* Nominal alpha over character-level labels. Each position is weighted by
   its length in characters when the tokens are known, which equals alpha over every character of
   the tokens (separators excluded); with JSON lines character offsets each position is one
-  character. This is plain nominal alpha over characters, not the unitizing alpha of Krippendorff
+  character. With `--unit token` and no token text, alpha is over positions and the report says
+  so. This is plain nominal alpha over characters, not the unitizing alpha of Krippendorff
   (1995), which compares the units themselves on a continuum.
 - *Bootstrap.* Every statistic is a function of per-document sums (matched credit and set sizes,
   confusion matrices, category counts, coincidence matrices), so the bootstrap resamples documents
