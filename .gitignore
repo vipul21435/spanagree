@@ -10,5 +10,5 @@ dist/
 build/
 *.egg-info/
 uv.lock
-data/
+/data/
 .hypothesis/

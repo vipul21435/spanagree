@@ -1,0 +1,13 @@
+{"document": "n1", "length": 12}
+{"document": "n2", "length": 9}
+{"document": "n1", "annotator": "first", "start": 0, "end": 2, "label": "PER"}
+{"document": "n1", "annotator": "first", "start": 4, "end": 5, "label": "LOC"}
+{"document": "n1", "annotator": "first", "start": 7, "end": 9, "label": "ORG"}
+{"document": "n2", "annotator": "first", "start": 1, "end": 4, "label": "ORG"}
+{"document": "n2", "annotator": "first", "start": 6, "end": 7, "label": "MISC"}
+{"document": "n1", "annotator": "second", "start": 0, "end": 2, "label": "PER"}
+{"document": "n1", "annotator": "second", "start": 4, "end": 5, "label": "ORG"}
+{"document": "n1", "annotator": "second", "start": 7, "end": 10, "label": "ORG"}
+{"document": "n2", "annotator": "second", "start": 1, "end": 2, "label": "ORG"}
+{"document": "n2", "annotator": "second", "start": 3, "end": 4, "label": "ORG"}
+{"document": "n2", "annotator": "second", "start": 8, "end": 9, "label": "LOC"}
