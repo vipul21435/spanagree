@@ -1,0 +1,43 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "spanagree"
+version = "0.1.0"
+description = "Agreement and typed error counts for labelled text spans: boundary, label, missed and extra."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Vipul Raj Jha" }]
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.23", "scipy>=1.9"]
+keywords = ["annotation", "agreement", "named-entity-recognition", "span", "kappa", "evaluation"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Text Processing :: Linguistic",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "pytest-cov>=4", "ruff>=0.5", "hypothesis>=6", "scikit-learn>=1.2", "statsmodels>=0.14", "krippendorff>=0.6"]
+
+[project.scripts]
+spanagree = "spanagree.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/vipul21435/spanagree"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/spanagree"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
